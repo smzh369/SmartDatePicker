@@ -1,0 +1,3 @@
+rootProject.name='SmartDatePicker'
+include ':app'
+include ':library'
