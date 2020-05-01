@@ -26,19 +26,15 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
 
     private var mMonth = calendar.get(Calendar.MONTH) + 1
 
-    private var mDay = calendar.get(Calendar.DATE)
+    private var mDay = calendar.get(Calendar.DAY_OF_MONTH)
 
-    private var mTimeStamp = calendar.timeInMillis
+    private var mTimeStamp = 0L
 
     private var mDateStr = ""
 
     private val sdf: SimpleDateFormat
 
     private val format: String
-
-    private val minDate: String?
-
-    private val maxDate: String?
 
     private val style: Int
 
@@ -51,8 +47,8 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SmartDatePicker)
         format = typedArray.getString(R.styleable.SmartDatePicker_format) ?: "yyyy-MM-dd"
-        minDate = typedArray.getString(R.styleable.SmartDatePicker_minDate)
-        maxDate = typedArray.getString(R.styleable.SmartDatePicker_maxDate)
+        val minDate = typedArray.getString(R.styleable.SmartDatePicker_minDate)
+        val maxDate = typedArray.getString(R.styleable.SmartDatePicker_maxDate)
         style = typedArray.getInt(R.styleable.SmartDatePicker_style, 3)
         timeMillis = typedArray.getBoolean(R.styleable.SmartDatePicker_timeMills, false)
         typedArray.recycle()
@@ -63,17 +59,24 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
             mDay = day
             calendar.set(Calendar.YEAR, year)
             calendar.set(Calendar.MONTH, month)
-            calendar.set(Calendar.DATE, day)
+            calendar.set(Calendar.DAY_OF_MONTH, day)
             mTimeStamp = if (timeMillis) calendar.timeInMillis else calendar.timeInMillis / 1000
             mDateStr = sdf.format(calendar.time)
             text = mDateStr
             onDatePickListener?.invoke(datePicker, mYear, mMonth, mDay, mTimeStamp, mDateStr)
         }, mYear, mMonth-1, mDay)
+        if (!format.contains("yy")){
+            ((dialog.datePicker.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0).visibility = View.GONE
+        }
+        if (!format.contains("MM")){
+            ((dialog.datePicker.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1).visibility = View.GONE
+        }
         if (!format.contains("dd")){
             ((dialog.datePicker.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(2).visibility = View.GONE
         }
         minDate?.apply { sdf.parse(this)?.let { dialog.datePicker.minDate = it.time } }
         maxDate?.apply { sdf.parse(this)?.let { dialog.datePicker.maxDate = it.time } }
+        mTimeStamp = if (timeMillis) calendar.timeInMillis else calendar.timeInMillis / 1000
         mDateStr = sdf.format(mTimeStamp)
         text = mDateStr
         isClickable = true
@@ -104,8 +107,48 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
         mTimeStamp = if (timeMillis) calendar.timeInMillis else calendar.timeInMillis / 1000
         mDateStr = sdf.format(calendar.time)
         text = mDateStr
-        dialog.datePicker.updateDate(year, month, day)
+        dialog.datePicker.updateDate(year, month-1, day)
     }
+    
+    fun setStartDate(startTimeMills: Long){
+        calendar.timeInMillis = startTimeMills
+        mTimeStamp = if (timeMillis) startTimeMills else startTimeMills / 1000
+        mDateStr = sdf.format(calendar.time)
+        text = mDateStr
+        mYear = calendar.get(Calendar.YEAR)
+        mMonth = calendar.get(Calendar.MONTH) + 1
+        mDay = calendar.get(Calendar.DAY_OF_MONTH)
+        dialog.datePicker.updateDate(mYear, mMonth-1, mDay)
+    }
+    
+    fun setStartDate(startDate: String){
+        mDateStr = startDate
+        text = startDate
+        calendar.time = sdf.parse(startDate)
+        mTimeStamp = if (timeMillis) calendar.timeInMillis else calendar.timeInMillis / 1000
+        mYear = calendar.get(Calendar.YEAR)
+        mMonth = calendar.get(Calendar.MONTH) + 1
+        mDay = calendar.get(Calendar.DAY_OF_MONTH)
+        dialog.datePicker.updateDate(mYear, mMonth-1, mDay)
+    }
+    
+    fun setMinDate(minDate: String) = sdf.parse(minDate)?.let { dialog.datePicker.minDate = it.time }
+    
+    fun setMinDate(minTimeMills: Long) { dialog.datePicker.minDate = minTimeMills }
+
+    fun setMaxDate(maxDate: String) = sdf.parse(maxDate)?.let { dialog.datePicker.maxDate = it.time }
+
+    fun setMaxDate(maxTimeMills: Long) { dialog.datePicker.maxDate = maxTimeMills }
+
+    fun getDate() = mDateStr
+
+    fun getTimeStamp() = mTimeStamp
+
+    fun getYear() = mYear
+
+    fun getMonth() = mMonth
+
+    fun getDay() = mDay
 
     fun setOnDatePickListener(listener: (DatePicker, Int, Int, Int, Long, String) -> Unit){
         onDatePickListener = listener
