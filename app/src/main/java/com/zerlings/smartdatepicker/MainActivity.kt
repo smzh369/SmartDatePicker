@@ -10,6 +10,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        date_picker.setStartDate("2021-07")
         date_picker.setOnDatePickListener { datePicker, year, month, day, timeStamp, dateStr ->
             Log.i("SmartDatePicker", "year : $year")
             Log.i("SmartDatePicker", "month : $month")

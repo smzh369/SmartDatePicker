@@ -7,8 +7,6 @@ import android.support.v7.widget.AppCompatTextView
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
-import android.view.View
-import android.view.ViewGroup
 import android.widget.DatePicker
 import java.text.SimpleDateFormat
 import java.util.*
@@ -42,7 +40,11 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
 
     private val dialog: DatePickerDialog
 
-    private var onDatePickListener: ((datePicker: DatePicker, year: Int, month: Int, day: Int, timeStamp: Long, dateStr: String) -> Unit)? = null
+    private var onDatePickListener: ((year: Int, month: Int, day: Int, timeStamp: Long, dateStr: String) -> Unit)? = null
+
+    private var onDismissListener: (() -> Unit)? = null
+
+    private var onCancelListener: (() -> Unit)? = null
 
     init {
         val typedArray = context.obtainStyledAttributes(attrs, R.styleable.SmartDatePicker)
@@ -53,7 +55,7 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
         timeMillis = typedArray.getBoolean(R.styleable.SmartDatePicker_timeMills, false)
         typedArray.recycle()
         sdf = SimpleDateFormat(format)
-        dialog = DatePickerDialog(context, style, DatePickerDialog.OnDateSetListener{ datePicker: DatePicker, year: Int, month: Int, day: Int ->
+        dialog = DatePickerDialog(context, style, DatePickerDialog.OnDateSetListener{ _: DatePicker, year: Int, month: Int, day: Int ->
             mYear = year
             mMonth = month + 1
             mDay = day
@@ -63,17 +65,17 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
             mTimeStamp = if (timeMillis) calendar.timeInMillis else calendar.timeInMillis / 1000
             mDateStr = sdf.format(calendar.time)
             text = mDateStr
-            onDatePickListener?.invoke(datePicker, mYear, mMonth, mDay, mTimeStamp, mDateStr)
+            onDatePickListener?.invoke(mYear, mMonth, mDay, mTimeStamp, mDateStr)
         }, mYear, mMonth-1, mDay)
-        if (!format.contains("yy")){
-            ((dialog.datePicker.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(0).visibility = View.GONE
-        }
-        if (!format.contains("MM")){
+        /*if (!format.contains("yy") && style < 4){
             ((dialog.datePicker.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1).visibility = View.GONE
         }
-        if (!format.contains("dd")){
-            ((dialog.datePicker.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(2).visibility = View.GONE
+        if (!format.contains("MM") && style < 4){
+            ((dialog.datePicker.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1).visibility = View.GONE
         }
+        if (!format.contains("dd") && style < 4){
+            ((dialog.datePicker.getChildAt(0) as ViewGroup).getChildAt(0) as ViewGroup).getChildAt(1).visibility = View.GONE
+        }*/
         minDate?.apply { sdf.parse(this)?.let { dialog.datePicker.minDate = it.time } }
         maxDate?.apply { sdf.parse(this)?.let { dialog.datePicker.maxDate = it.time } }
         mTimeStamp = if (timeMillis) calendar.timeInMillis else calendar.timeInMillis / 1000
@@ -99,7 +101,13 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
         return super.onTouchEvent(event)
     }
 
-    fun setStartDate(year: Int, month: Int, day: Int){
+    fun show() = dialog.show()
+
+    fun dismiss() = dialog.dismiss()
+
+    fun cancel() = dialog.cancel()
+
+    fun setDate(year: Int, month: Int, day: Int){
         mYear = year
         mMonth = month
         mDay = day
@@ -110,9 +118,9 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
         dialog.datePicker.updateDate(year, month-1, day)
     }
     
-    fun setStartDate(startTimeMills: Long){
-        calendar.timeInMillis = startTimeMills
-        mTimeStamp = if (timeMillis) startTimeMills else startTimeMills / 1000
+    fun setDate(timeMills: Long){
+        calendar.timeInMillis = timeMills
+        mTimeStamp = if (timeMillis) timeMills else timeMills / 1000
         mDateStr = sdf.format(calendar.time)
         text = mDateStr
         mYear = calendar.get(Calendar.YEAR)
@@ -121,10 +129,10 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
         dialog.datePicker.updateDate(mYear, mMonth-1, mDay)
     }
     
-    fun setStartDate(startDate: String){
-        mDateStr = startDate
-        text = startDate
-        calendar.time = sdf.parse(startDate)
+    fun setDate(date: String){
+        mDateStr = date
+        text = date
+        calendar.time = sdf.parse(date)
         mTimeStamp = if (timeMillis) calendar.timeInMillis else calendar.timeInMillis / 1000
         mYear = calendar.get(Calendar.YEAR)
         mMonth = calendar.get(Calendar.MONTH) + 1
@@ -150,7 +158,19 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
 
     fun getDay() = mDay
 
-    fun setOnDatePickListener(listener: (DatePicker, Int, Int, Int, Long, String) -> Unit){
+    fun getDatePicker() = dialog.datePicker
+
+    fun getDialog() = dialog
+
+    fun setOnDatePickListener(listener: (Int, Int, Int, Long, String) -> Unit){
         onDatePickListener = listener
+    }
+
+    fun setOnShowListener(listener: () -> Unit){
+        onDismissListener = listener
+    }
+
+    fun setOnCancelListener(listener: () -> Unit){
+        onCancelListener = listener
     }
 }
