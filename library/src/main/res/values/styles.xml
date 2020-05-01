@@ -2,16 +2,16 @@
 <resources>
 
     <declare-styleable name="SmartDatePicker">
-        <attr name="format" format="flags">
-            <flag name="yyyy-MM-dd" value="yyyy-MM-dd" />
-            <flag name="yyyy-MM" value="yyyy-MM" />
-        </attr>
+        <attr name="format" format="string"/>
+        <attr name="minDate" format="string"/>
+        <attr name="maxDate" format="string"/>
         <attr name="style" format="enum">
             <enum name="wheel_light" value="3"/>
             <enum name="wheel_dark" value="2"/>
             <enum name="calender_light" value="5"/>
             <enum name="calender_dark" value="4"/>
         </attr>
+        <attr name="timeMills" format="boolean"/>
     </declare-styleable>
 
 </resources>
