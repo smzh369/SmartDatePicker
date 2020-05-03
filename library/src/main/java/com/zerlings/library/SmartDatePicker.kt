@@ -79,7 +79,7 @@ class SmartDatePicker @JvmOverloads constructor(context: Context, attrs: Attribu
         minDate?.apply { sdf.parse(this)?.let { dialog.datePicker.minDate = it.time } }
         maxDate?.apply { sdf.parse(this)?.let { dialog.datePicker.maxDate = it.time } }
         mTimeStamp = if (timeMillis) calendar.timeInMillis else calendar.timeInMillis / 1000
-        mDateStr = sdf.format(mTimeStamp)
+        mDateStr = sdf.format(calendar.time)
         text = mDateStr
         isClickable = true
         Log.i("SmartDatePicker", "year : $mYear")
