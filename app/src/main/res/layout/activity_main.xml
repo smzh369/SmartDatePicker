@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:style="wheel_dark"
-        app:format="yyyy-MM"
+        app:format="yyyy-MM-dd"
         app:timeMills="false"
         app:minDate="2020-04-25"
         app:layout_constraintBottom_toBottomOf="parent"
