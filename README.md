@@ -75,7 +75,7 @@ allprojects {
 然后在app文件夹下的`build.gradle`中引入：
 ```
 dependencies {
-    implementation 'com.gitee.Zerlings:SmartDatePicker:0.1.0'
+    implementation 'com.gitee.Zerlings:SmartDatePicker:0.1.1'
 }
 ```
 
