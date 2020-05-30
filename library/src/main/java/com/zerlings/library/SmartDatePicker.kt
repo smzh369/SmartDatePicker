@@ -3,7 +3,7 @@ package com.zerlings.library
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Context
-import android.support.v7.widget.AppCompatTextView
+import androidx.appcompat.widget.AppCompatTextView
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent

@@ -8,6 +8,8 @@ Kotlin / Java(需开启kotlin插件支持)
 
 Android API 16+
 
+1.0.0以上版本仅支持AndroidX
+
 Usage
 -------
 ### 1.XML中定义
@@ -75,7 +77,7 @@ allprojects {
 然后在app文件夹下的`build.gradle`中引入：
 ```
 dependencies {
-    implementation 'com.gitee.Zerlings:SmartDatePicker:0.1.1'
+    implementation 'com.gitee.Zerlings:SmartDatePicker:1.0.0'
 }
 ```
 
